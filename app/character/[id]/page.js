@@ -115,6 +115,7 @@ export default function CharacterProfile() {
     const headers = {};
     if (localSettings.supabase_url) headers['x-supabase-url'] = localSettings.supabase_url;
     if (localSettings.supabase_anon_key) headers['x-supabase-key'] = localSettings.supabase_anon_key;
+    if (localSettings.gemini_api_key) headers['x-gemini-key'] = localSettings.gemini_api_key;
 
     try {
       const res = await fetch(`/api/chronicle/whats-next?charId=${charId}`, { headers });
@@ -138,6 +139,7 @@ export default function CharacterProfile() {
     const headers = { 'Content-Type': 'application/json' };
     if (localSettings.supabase_url) headers['x-supabase-url'] = localSettings.supabase_url;
     if (localSettings.supabase_anon_key) headers['x-supabase-key'] = localSettings.supabase_anon_key;
+    if (localSettings.gemini_api_key) headers['x-gemini-key'] = localSettings.gemini_api_key;
 
     try {
       const res = await fetch('/api/chronicle/update', {

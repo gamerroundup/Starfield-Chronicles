@@ -11,8 +11,9 @@ export async function POST(request) {
 
     const supabaseUrl = request.headers.get('x-supabase-url');
     const supabaseKey = request.headers.get('x-supabase-key');
+    const geminiKey = request.headers.get('x-gemini-key');
 
-    const dossier = await generateCharacterDossier(playstyle, name, background, traits, supabaseUrl, supabaseKey);
+    const dossier = await generateCharacterDossier(playstyle, name, background, traits, supabaseUrl, supabaseKey, geminiKey);
 
     return NextResponse.json({ success: true, dossier });
   } catch (error) {

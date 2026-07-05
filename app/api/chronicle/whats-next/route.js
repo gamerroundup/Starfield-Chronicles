@@ -49,6 +49,7 @@ export async function GET(request) {
 
     const supabaseUrl = request.headers.get('x-supabase-url');
     const supabaseKey = request.headers.get('x-supabase-key');
+    const geminiKey = request.headers.get('x-gemini-key');
 
     // 2. Decide if generating personalized rumor or next session hooks
     if (isRumorQuery) {
@@ -57,7 +58,7 @@ export async function GET(request) {
         background: character.background,
         level: character.current_level,
         biography_summary: character.biography_summary
-      }, supabaseUrl, supabaseKey);
+      }, supabaseUrl, supabaseKey, geminiKey);
       return NextResponse.json({ success: true, rumor: newsResult.rumor });
     } else {
       const stats = {
@@ -72,7 +73,8 @@ export async function GET(request) {
         stats,
         timelineEvents.map(e => ({ level: e.level, title: e.event_title })),
         supabaseUrl,
-        supabaseKey
+        supabaseKey,
+        geminiKey
       );
 
       return NextResponse.json({ success: true, hooks: hooksResult.hooks });

@@ -44,6 +44,7 @@ export default function Home() {
         const headers = {};
         if (localSettings.supabase_url) headers['x-supabase-url'] = localSettings.supabase_url;
         if (localSettings.supabase_anon_key) headers['x-supabase-key'] = localSettings.supabase_anon_key;
+        if (localSettings.gemini_api_key) headers['x-gemini-key'] = localSettings.gemini_api_key;
 
         const res = await fetch('/api/daily-slate', { headers });
         const slateJson = await res.json();
