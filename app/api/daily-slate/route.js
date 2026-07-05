@@ -17,11 +17,14 @@ export async function GET(request) {
       console.error('Supabase query error:', error);
     }
 
+    const supabaseUrl = request.headers.get('x-supabase-url');
+    const supabaseKey = request.headers.get('x-supabase-key');
+
     // 2. If no slate exists, generate via Gemini and save it
     if (!slate) {
       console.log('No daily slate for today, generating via Gemini...');
       try {
-        const generated = await generateDailyNews();
+        const generated = await generateDailyNews(null, supabaseUrl, supabaseKey);
         
         // Insert into database
         const { data: newSlate, error: insertError } = await supabase

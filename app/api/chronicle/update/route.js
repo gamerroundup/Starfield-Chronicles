@@ -55,11 +55,16 @@ export async function POST(request) {
       level: currentLevel || character.current_level
     };
 
+    const supabaseUrl = request.headers.get('x-supabase-url');
+    const supabaseKey = request.headers.get('x-supabase-key');
+
     const updateResult = await updateChronicle(
       character.biography_summary,
       stats,
       timelineEvents.map(e => ({ level: e.level, title: e.event_title, desc: e.event_description })),
-      playerInput
+      playerInput,
+      supabaseUrl,
+      supabaseKey
     );
 
     // 3. Save updates back to database if not sandbox

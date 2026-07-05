@@ -111,8 +111,13 @@ export default function CharacterProfile() {
 
   const fetchHooks = async (charId) => {
     setLoadingHooks(true);
+    const localSettings = JSON.parse(localStorage.getItem('sb-sandbox-settings') || '{}');
+    const headers = {};
+    if (localSettings.supabase_url) headers['x-supabase-url'] = localSettings.supabase_url;
+    if (localSettings.supabase_anon_key) headers['x-supabase-key'] = localSettings.supabase_anon_key;
+
     try {
-      const res = await fetch(`/api/chronicle/whats-next?charId=${charId}`);
+      const res = await fetch(`/api/chronicle/whats-next?charId=${charId}`, { headers });
       const json = await res.json();
       if (json.success && json.hooks) {
         setHooks(json.hooks);
@@ -129,10 +134,15 @@ export default function CharacterProfile() {
     if (!sessionInput.trim() || submittingLog) return;
 
     setSubmittingLog(true);
+    const localSettings = JSON.parse(localStorage.getItem('sb-sandbox-settings') || '{}');
+    const headers = { 'Content-Type': 'application/json' };
+    if (localSettings.supabase_url) headers['x-supabase-url'] = localSettings.supabase_url;
+    if (localSettings.supabase_anon_key) headers['x-supabase-key'] = localSettings.supabase_anon_key;
+
     try {
       const res = await fetch('/api/chronicle/update', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           charId: id,
           playerInput: sessionInput,

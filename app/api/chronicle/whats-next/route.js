@@ -47,6 +47,9 @@ export async function GET(request) {
       timelineEvents = events || [];
     }
 
+    const supabaseUrl = request.headers.get('x-supabase-url');
+    const supabaseKey = request.headers.get('x-supabase-key');
+
     // 2. Decide if generating personalized rumor or next session hooks
     if (isRumorQuery) {
       const newsResult = await generateDailyNews({
@@ -54,7 +57,7 @@ export async function GET(request) {
         background: character.background,
         level: character.current_level,
         biography_summary: character.biography_summary
-      });
+      }, supabaseUrl, supabaseKey);
       return NextResponse.json({ success: true, rumor: newsResult.rumor });
     } else {
       const stats = {
@@ -67,7 +70,9 @@ export async function GET(request) {
       const hooksResult = await generateWhatsNext(
         character.biography_summary,
         stats,
-        timelineEvents.map(e => ({ level: e.level, title: e.event_title }))
+        timelineEvents.map(e => ({ level: e.level, title: e.event_title })),
+        supabaseUrl,
+        supabaseKey
       );
 
       return NextResponse.json({ success: true, hooks: hooksResult.hooks });

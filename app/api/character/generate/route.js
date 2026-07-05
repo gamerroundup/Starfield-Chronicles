@@ -9,7 +9,10 @@ export async function POST(request) {
       return NextResponse.json({ success: false, error: 'Playstyle is required' }, { status: 400 });
     }
 
-    const dossier = await generateCharacterDossier(playstyle, name, background, traits);
+    const supabaseUrl = request.headers.get('x-supabase-url');
+    const supabaseKey = request.headers.get('x-supabase-key');
+
+    const dossier = await generateCharacterDossier(playstyle, name, background, traits, supabaseUrl, supabaseKey);
 
     return NextResponse.json({ success: true, dossier });
   } catch (error) {
