@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Compass, Sparkles, AlertCircle, Save, Info } from 'lucide-react';
-import { generateRandomCharacter } from '@/lib/characterGenerator';
+import { generateRandomCharacter, generateLocalBiography } from '@/lib/characterGenerator';
 
 export default function NewCharacter() {
   const router = useRouter();
