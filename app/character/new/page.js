@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Compass, Sparkles, AlertCircle, Save, Info } from 'lucide-react';
+import { generateRandomCharacter } from '@/lib/characterGenerator';
 
 export default function NewCharacter() {
   const router = useRouter();
@@ -29,7 +30,6 @@ export default function NewCharacter() {
     async function checkUser() {
       const { data: { user: authUser } } = await supabase.auth.getUser();
       if (!authUser) {
-        // Check for local storage sandbox bypass
         const sandboxUser = localStorage.getItem('sb-sandbox-user');
         if (sandboxUser) {
           setUser(JSON.parse(sandboxUser));
@@ -48,11 +48,28 @@ export default function NewCharacter() {
     setIsGenerating(true);
     setAiError('');
 
+    // Generate local random character stats immediately if fields are empty
+    let targetName = name;
+    let targetBackground = background;
+    let targetTraits = traits;
+
+    if (!name.trim() || !background.trim() || !traits.trim()) {
+      const generated = generateRandomCharacter();
+      targetName = name.trim() || generated.name;
+      targetBackground = background.trim() || generated.background;
+      targetTraits = traits.trim() || generated.traits;
+
+      // Populate inputs in UI immediately
+      setName(targetName);
+      setBackground(targetBackground);
+      setTraits(targetTraits);
+    }
+
     try {
       const actualRes = await fetch('/api/character/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ playstyle, name, background, traits })
+        body: JSON.stringify({ playstyle, name: targetName, background: targetBackground, traits: targetTraits })
       });
 
       const data = await actualRes.json();
