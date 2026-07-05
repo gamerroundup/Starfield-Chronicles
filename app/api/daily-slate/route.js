@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { generateDailyNews } from '@/lib/gemini';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request) {
   try {
     const today = new Date().toISOString().split('T')[0];
