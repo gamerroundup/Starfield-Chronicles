@@ -2,10 +2,16 @@ import './globals.css';
 import Navbar from '@/components/Navbar';
 import StarfieldBackground from '@/components/StarfieldBackground';
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
 export const metadata = {
   title: 'Starfield Chronicles | AI-Powered RPG Log & Creator Hub',
   description: 'Track your RPG journey through the Settled Systems with AI-assisted character generation, persistent Captain logs, mod showcases, and galactic news updates.',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no',
 };
 
 export default function RootLayout({ children }) {
