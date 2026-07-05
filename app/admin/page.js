@@ -16,7 +16,8 @@ export default function AdminPortal() {
   const [bioText, setBioText] = useState('');
   const [bioImg, setBioImg] = useState('');
   const [geminiKey, setGeminiKey] = useState('');
-  const [supabaseKeyBypass, setSupabaseKeyBypass] = useState('');
+  const [supabaseUrl, setSupabaseUrl] = useState('');
+  const [supabaseAnonKey, setSupabaseAnonKey] = useState('');
   const [savingSettings, setSavingSettings] = useState(false);
 
   // Announcements CRUD states
@@ -101,7 +102,8 @@ export default function AdminPortal() {
     setBioText(settingsMap['creator_bio'] || localSettings['creator_bio'] || 'Welcome to my Starfield Creator Hub.');
     setBioImg(settingsMap['creator_image_url'] || localSettings['creator_image_url'] || '');
     setGeminiKey(settingsMap['gemini_api_key'] || localSettings['gemini_api_key'] || '');
-    setSupabaseKeyBypass(settingsMap['supabase_bypass'] || localSettings['supabase_bypass'] || '');
+    setSupabaseUrl(settingsMap['supabase_url'] || localSettings['supabase_url'] || '');
+    setSupabaseAnonKey(settingsMap['supabase_anon_key'] || localSettings['supabase_anon_key'] || '');
 
     // 2. Fetch announcements
     const { data: ann } = await supabase.from('announcements').select('*').order('created_at', { ascending: false });
@@ -126,7 +128,8 @@ export default function AdminPortal() {
       { key: 'creator_bio', value: bioText },
       { key: 'creator_image_url', value: bioImg },
       { key: 'gemini_api_key', value: geminiKey },
-      { key: 'supabase_bypass', value: supabaseKeyBypass }
+      { key: 'supabase_url', value: supabaseUrl },
+      { key: 'supabase_anon_key', value: supabaseAnonKey }
     ];
 
     let hasError = false;
@@ -143,7 +146,8 @@ export default function AdminPortal() {
       creator_bio: bioText,
       creator_image_url: bioImg,
       gemini_api_key: geminiKey,
-      supabase_bypass: supabaseKeyBypass
+      supabase_url: supabaseUrl,
+      supabase_anon_key: supabaseAnonKey
     };
     localStorage.setItem('sb-sandbox-settings', JSON.stringify(local));
 
@@ -426,11 +430,12 @@ export default function AdminPortal() {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-[9px] text-slate-400 font-bold tracking-widest uppercase">Creator Bio Photo URL</label>
+                <label className="text-[9px] text-slate-400 font-bold tracking-widest uppercase">Creator Bio Photo (URL or /images/filename.jpg from git)</label>
                 <input
-                  type="url"
+                  type="text"
                   value={bioImg}
                   onChange={(e) => setBioImg(e.target.value)}
+                  placeholder="e.g. /images/profile.jpg"
                   className="bg-space-900 border border-white/10 focus:border-constellation-cyan focus:outline-none rounded px-2.5 py-1.5 text-xs text-slate-200"
                 />
               </div>
@@ -446,11 +451,23 @@ export default function AdminPortal() {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-[9px] text-slate-400 font-bold tracking-widest uppercase">Supabase Bypass Key</label>
+                <label className="text-[9px] text-slate-400 font-bold tracking-widest uppercase">Supabase Project URL</label>
+                <input
+                  type="text"
+                  value={supabaseUrl}
+                  onChange={(e) => setSupabaseUrl(e.target.value)}
+                  placeholder="https://yourproject.supabase.co"
+                  className="bg-space-900 border border-white/10 focus:border-constellation-cyan focus:outline-none rounded px-2.5 py-1.5 text-xs text-slate-200"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[9px] text-slate-400 font-bold tracking-widest uppercase">Supabase Anon Key</label>
                 <input
                   type="password"
-                  value={supabaseKeyBypass}
-                  onChange={(e) => setSupabaseKeyBypass(e.target.value)}
+                  value={supabaseAnonKey}
+                  onChange={(e) => setSupabaseAnonKey(e.target.value)}
+                  placeholder="eyJhbGciOi..."
                   className="bg-space-900 border border-white/10 focus:border-constellation-cyan focus:outline-none rounded px-2.5 py-1.5 text-xs text-slate-200"
                 />
               </div>
