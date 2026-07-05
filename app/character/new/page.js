@@ -19,6 +19,7 @@ export default function NewCharacter() {
   // AI Assist state
   const [playstyle, setPlaystyle] = useState('Exploration');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [useAi, setUseAi] = useState(false);
   const [aiError, setAiError] = useState('');
   
   // General page state
@@ -67,6 +68,14 @@ export default function NewCharacter() {
     setBackground(targetBackground);
     setTraits(targetTraits);
 
+    if (!useAi) {
+      // Local RNG mode - generate biography instantly from templates
+      const localBio = generateLocalBiography(targetName, targetBackground, targetTraits, playstyle);
+      setBioSummary(localBio);
+      setIsGenerating(false);
+      return;
+    }
+
     try {
       const actualRes = await fetch('/api/character/generate', {
         method: 'POST',
@@ -81,17 +90,15 @@ export default function NewCharacter() {
         setTraits(data.dossier.traits || targetTraits);
         setBioSummary(data.dossier.biography_summary || '');
       } else {
-        // Quota reached or API error - fallback to local biography generation
+        // Quota reached or API error - fallback to local biography generation silently
         console.warn('API generation failed, falling back to local compiler:', data.error);
         const fallbackBio = generateLocalBiography(targetName, targetBackground, targetTraits, playstyle);
         setBioSummary(fallbackBio);
-        setAiError('Gemini quota reached. Used high-fidelity local narrative backup engine.');
       }
     } catch (err) {
       console.warn('API connection failed, falling back to local compiler:', err);
       const fallbackBio = generateLocalBiography(targetName, targetBackground, targetTraits, playstyle);
       setBioSummary(fallbackBio);
-      setAiError('Gemini connection error. Used high-fidelity local narrative backup engine.');
     } finally {
       setIsGenerating(false);
     }
@@ -182,6 +189,19 @@ export default function NewCharacter() {
             </select>
           </div>
 
+          <div className="flex items-center gap-2 mt-1">
+            <input
+              type="checkbox"
+              id="useAiToggle"
+              checked={useAi}
+              onChange={(e) => setUseAi(e.target.checked)}
+              className="w-3.5 h-3.5 rounded border-white/10 bg-space-900 text-constellation-cyan focus:ring-constellation-cyan focus:ring-offset-space-950"
+            />
+            <label htmlFor="useAiToggle" className="text-[10px] font-semibold text-slate-300 uppercase tracking-wider cursor-pointer select-none">
+              Use Gemini AI Assist
+            </label>
+          </div>
+
           {aiError && (
             <div className="text-[11px] p-2.5 rounded bg-red-950/40 border border-red-500/25 text-red-300 flex items-center gap-2">
               <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
@@ -203,7 +223,7 @@ export default function NewCharacter() {
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-3.5 h-3.5" /> Generate Dossier
+                  <Sparkles className="w-3.5 h-3.5" /> {useAi ? 'Generate AI Dossier' : 'Generate Local Dossier'}
                 </>
               )}
             </button>
