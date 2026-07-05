@@ -306,6 +306,6 @@ export default function NewCharacter() {
           </div>
         </form>
       </div>
-    </div>
+    </main>
   );
 }
