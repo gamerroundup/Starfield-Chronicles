@@ -40,13 +40,7 @@ export default function Home() {
         }
 
         // 3. Fetch Daily News Slate
-        const localSettings = JSON.parse(localStorage.getItem('sb-sandbox-settings') || '{}');
-        const headers = {};
-        if (localSettings.supabase_url) headers['x-supabase-url'] = localSettings.supabase_url;
-        if (localSettings.supabase_anon_key) headers['x-supabase-key'] = localSettings.supabase_anon_key;
-        if (localSettings.gemini_api_key) headers['x-gemini-key'] = localSettings.gemini_api_key;
-
-        const res = await fetch('/api/daily-slate', { headers });
+        const res = await fetch('/api/daily-slate');
         const slateJson = await res.json();
         if (slateJson.success && slateJson.data) {
           const parsedContent = JSON.parse(slateJson.data.global_news_content);
@@ -70,7 +64,7 @@ export default function Home() {
             setGeneratingRumor(true);
             try {
               // Trigger a fast prompt for personal rumor referencing the character
-              const rumorRes = await fetch(`/api/chronicle/whats-next?charId=${activeChar.id}&rumor=true`, { headers });
+              const rumorRes = await fetch(`/api/chronicle/whats-next?charId=${activeChar.id}&rumor=true`);
               const rumorJson = await rumorRes.json();
               if (rumorJson.success && rumorJson.rumor) {
                 setPersonalRumor(rumorJson.rumor);

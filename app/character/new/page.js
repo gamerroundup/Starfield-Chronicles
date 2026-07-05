@@ -48,16 +48,10 @@ export default function NewCharacter() {
     setIsGenerating(true);
     setAiError('');
 
-    const localSettings = JSON.parse(localStorage.getItem('sb-sandbox-settings') || '{}');
-    const headers = { 'Content-Type': 'application/json' };
-    if (localSettings.supabase_url) headers['x-supabase-url'] = localSettings.supabase_url;
-    if (localSettings.supabase_anon_key) headers['x-supabase-key'] = localSettings.supabase_anon_key;
-    if (localSettings.gemini_api_key) headers['x-gemini-key'] = localSettings.gemini_api_key;
-
     try {
       const actualRes = await fetch('/api/character/generate', {
         method: 'POST',
-        headers,
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ playstyle, name, background, traits })
       });
 
