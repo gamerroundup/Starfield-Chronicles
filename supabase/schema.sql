@@ -80,6 +80,31 @@ CREATE TABLE IF NOT EXISTS public.announcements (
 -- Enable RLS
 ALTER TABLE public.announcements ENABLE ROW LEVEL SECURITY;
 
+-- 7. Projects Table (for PWAs, Gaming, Special Projects)
+CREATE TABLE IF NOT EXISTS public.projects (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    category TEXT NOT NULL,
+    url TEXT NOT NULL,
+    image_url TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Enable RLS
+ALTER TABLE public.projects ENABLE ROW LEVEL SECURITY;
+
+-- 8. Dynamic Settings Table
+CREATE TABLE IF NOT EXISTS public.settings (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Enable RLS
+ALTER TABLE public.settings ENABLE ROW LEVEL SECURITY;
+
+
 -- RLS Policies Setup
 
 -- Characters policies
@@ -143,12 +168,26 @@ CREATE POLICY "Mods are viewable by everyone" ON public.mods
 CREATE POLICY "Announcements are viewable by everyone" ON public.announcements
     FOR SELECT TO public USING (true);
 
--- Restrict write access for daily_slates, mods and announcements to admin
+-- Projects policies
+CREATE POLICY "Projects are viewable by everyone" ON public.projects
+    FOR SELECT TO public USING (true);
+
+-- Settings policies
+CREATE POLICY "Settings are viewable by everyone" ON public.settings
+    FOR SELECT TO public USING (true);
+
+-- Restrict write access for Admin-related tables to user email
 CREATE POLICY "Only admin can write mods" ON public.mods
-    FOR ALL USING (auth.jwt() ->> 'email' = 'admin@gamerroundup.com');
+    FOR ALL USING (auth.jwt() ->> 'email' = 'prattgrf3@gmail.com');
 
 CREATE POLICY "Only admin can write announcements" ON public.announcements
-    FOR ALL USING (auth.jwt() ->> 'email' = 'admin@gamerroundup.com');
+    FOR ALL USING (auth.jwt() ->> 'email' = 'prattgrf3@gmail.com');
+
+CREATE POLICY "Only admin can write projects" ON public.projects
+    FOR ALL USING (auth.jwt() ->> 'email' = 'prattgrf3@gmail.com');
+
+CREATE POLICY "Only admin can write settings" ON public.settings
+    FOR ALL USING (auth.jwt() ->> 'email' = 'prattgrf3@gmail.com');
 
 CREATE POLICY "Anyone or API key can write daily slates" ON public.daily_slates
     FOR ALL USING (true);
