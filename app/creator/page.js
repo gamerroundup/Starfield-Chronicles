@@ -9,6 +9,15 @@ export default function CreatorHub() {
   const [projects, setProjects] = useState([]);
   const [activeTab, setActiveTab] = useState('mods'); // 'mods' or 'projects'
   const [loading, setLoading] = useState(true);
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  useEffect(() => {
+    if (activeTab !== 'mods' || mods.length <= 1) return;
+    const timer = setInterval(() => {
+      setCurrentSlide(prev => (prev + 1) % mods.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, [mods, activeTab]);
 
   // Settings states
   const [bioText, setBioText] = useState('Welcome to my Starfield Creator Hub. My development philosophy is rooted in expanding Bethesda\'s incredible framework to its limits. I focus on creating deep, emergent looter-shooter mechanics, tactical frontier-ops storytelling, and richer economics in the Settled Systems.');
@@ -157,14 +166,67 @@ export default function CreatorHub() {
 
       {/* Display Mods Tab */}
       {activeTab === 'mods' && (
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-8">
           {loading ? (
             <div className="flex flex-col gap-2 justify-center items-center py-10 text-slate-500 uppercase tracking-widest text-xs">
               <div className="w-6 h-6 border border-t-transparent border-constellation-orange rounded-full animate-spin"></div>
               <span>Scanning Creations logs...</span>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <>
+              {/* Rotating Mod Cover Banner */}
+              {mods.length > 0 && (
+                <div className="relative w-full h-64 md:h-96 rounded-lg overflow-hidden glass-panel border-constellation-orange/20 shadow-glow-orange/10 group">
+                  {mods.map((slide, idx) => (
+                    <div
+                      key={slide.id}
+                      className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+                        idx === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'
+                      }`}
+                    >
+                      <img
+                        src={slide.image_url || 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=600&auto=format&fit=crop'}
+                        alt={slide.title}
+                        className="w-full h-full object-cover opacity-60"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-space-950 via-space-950/30 to-transparent"></div>
+                      <div className="absolute bottom-6 left-6 right-6 z-20 flex flex-col gap-1.5 md:gap-3">
+                        <span className="text-[10px] text-constellation-orange font-bold tracking-widest uppercase bg-space-950/90 border border-constellation-orange/30 px-3 py-1 rounded w-max">
+                          Featured Creation Blueprint
+                        </span>
+                        <h2 className="text-xl md:text-3xl font-black uppercase tracking-wide text-white drop-shadow-md">
+                          {slide.title}
+                        </h2>
+                        <p className="text-xs text-slate-300 md:text-sm max-w-2xl line-clamp-2 leading-relaxed drop-shadow">
+                          {slide.description}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* Dot Indicators */}
+                  <div className="absolute bottom-4 right-6 z-25 flex gap-2">
+                    {mods.map((_, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setCurrentSlide(idx)}
+                        className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+                          idx === currentSlide
+                            ? 'bg-constellation-orange scale-125 shadow-glow-orange'
+                            : 'bg-white/30 hover:bg-white/60'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Title Header */}
+              <div className="border-b border-white/5 pb-2 mt-4">
+                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Creations Catalog</h3>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {mods.map((mod) => (
                 <div key={mod.id} className="glass-panel rounded-lg border-white/5 overflow-hidden flex flex-col group hover:border-constellation-orange/20 transition-all duration-300">
                   <div className="h-48 w-full bg-space-900 relative overflow-hidden">
