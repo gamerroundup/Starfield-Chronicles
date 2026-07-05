@@ -44,26 +44,28 @@ export default function NewCharacter() {
     checkUser();
   }, []);
 
+  const handleResetForm = () => {
+    setName('');
+    setBackground('');
+    setTraits('');
+    setBioSummary('');
+    setAiError('');
+  };
+
   const handleAiAssist = async () => {
     setIsGenerating(true);
     setAiError('');
 
-    // Generate local random character stats immediately if fields are empty
-    let targetName = name;
-    let targetBackground = background;
-    let targetTraits = traits;
+    // Always generate a fresh random character locally on every click
+    const generated = generateRandomCharacter();
+    const targetName = generated.name;
+    const targetBackground = generated.background;
+    const targetTraits = generated.traits;
 
-    if (!name.trim() || !background.trim() || !traits.trim()) {
-      const generated = generateRandomCharacter();
-      targetName = name.trim() || generated.name;
-      targetBackground = background.trim() || generated.background;
-      targetTraits = traits.trim() || generated.traits;
-
-      // Populate inputs in UI immediately
-      setName(targetName);
-      setBackground(targetBackground);
-      setTraits(targetTraits);
-    }
+    // Populate inputs in UI immediately
+    setName(targetName);
+    setBackground(targetBackground);
+    setTraits(targetTraits);
 
     try {
       const actualRes = await fetch('/api/character/generate', {
@@ -74,15 +76,22 @@ export default function NewCharacter() {
 
       const data = await actualRes.json();
       if (data.success && data.dossier) {
-        setName(data.dossier.name || name);
-        setBackground(data.dossier.background || background);
-        setTraits(data.dossier.traits || traits);
+        setName(data.dossier.name || targetName);
+        setBackground(data.dossier.background || targetBackground);
+        setTraits(data.dossier.traits || targetTraits);
         setBioSummary(data.dossier.biography_summary || '');
       } else {
-        setAiError(data.error || 'Failed to generate dossier.');
+        // Quota reached or API error - fallback to local biography generation
+        console.warn('API generation failed, falling back to local compiler:', data.error);
+        const fallbackBio = generateLocalBiography(targetName, targetBackground, targetTraits, playstyle);
+        setBioSummary(fallbackBio);
+        setAiError('Gemini quota reached. Used high-fidelity local narrative backup engine.');
       }
     } catch (err) {
-      setAiError('Connection failure. Please ensure GEMINI_API_KEY is configured.');
+      console.warn('API connection failed, falling back to local compiler:', err);
+      const fallbackBio = generateLocalBiography(targetName, targetBackground, targetTraits, playstyle);
+      setBioSummary(fallbackBio);
+      setAiError('Gemini connection error. Used high-fidelity local narrative backup engine.');
     } finally {
       setIsGenerating(false);
     }
@@ -111,7 +120,6 @@ export default function NewCharacter() {
         .single();
 
       if (error) {
-        // If RLS fails or we're in offline sandbox, save to localStorage
         console.warn('Supabase save failed, saving to sandbox storage:', error);
         const sandboxId = 'sandbox-' + Math.random().toString(36).substr(2, 9);
         const mockSavedChar = { ...charData, id: sandboxId, created_at: new Date().toISOString() };
@@ -133,38 +141,34 @@ export default function NewCharacter() {
 
   if (loading) {
     return (
-      <div className="flex flex-col gap-2 justify-center items-center py-20 text-slate-500 uppercase tracking-widest text-xs">
-        <div className="w-8 h-8 border-2 border-t-transparent border-constellation-cyan rounded-full animate-spin"></div>
-        <span>Syncing nav-dossier module...</span>
+      <div className="min-h-screen flex items-center justify-center bg-space-950">
+        <div className="w-8 h-8 border-4 border-t-transparent border-constellation-cyan rounded-full animate-spin"></div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto flex flex-col gap-8">
-      {/* Page Header */}
-      <div className="border-b border-white/10 pb-4">
-        <h1 className="text-3xl font-black uppercase tracking-wider text-slate-100 flex items-center gap-2">
-          <Compass className="w-8 h-8 text-constellation-cyan" />
-          Initialize Captain Dossier
-        </h1>
-        <p className="text-xs text-slate-400 mt-1 uppercase tracking-wider">
-          Registry protocol: Constellation database terminal
+    <main className="min-h-screen pt-24 pb-16 px-4 md:px-8 max-w-7xl mx-auto flex flex-col gap-8">
+      {/* Header */}
+      <div className="flex flex-col gap-2">
+        <h2 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-slate-100 to-slate-400 bg-clip-text text-transparent flex items-center gap-2">
+          <Compass className="w-8 h-8 text-constellation-cyan" /> CAPTAIN REGISTRY
+        </h2>
+        <p className="text-slate-400 text-sm max-w-2xl">
+          Register a new star-faring profile manually, or use the constellation AI compiler to automatically build a lore-friendly identity.
         </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Side: AI Assistant Panel */}
-        <div className="lg:col-span-1 glass-panel p-6 rounded-lg border-white/5 flex flex-col gap-4 self-start">
-          <h3 className="text-sm font-bold uppercase tracking-widest text-constellation-cyan flex items-center gap-1.5">
-            <Sparkles className="w-4.5 h-4.5" /> AI Assist Protocol
-          </h3>
-          <p className="text-xs text-slate-400 leading-relaxed">
-            Specify your preferred Starfield playstyle, and the Constellation AI will generate a rich background profile, optimal traits, and a lore-friendly biography.
-          </p>
+        {/* Left Side: AI Generator Controls */}
+        <div className="glass-panel p-6 rounded-lg border-white/5 flex flex-col gap-5 h-fit">
+          <div className="flex items-center gap-2 border-b border-white/5 pb-2">
+            <Sparkles className="w-5 h-5 text-constellation-cyan" />
+            <h3 className="text-sm font-bold uppercase tracking-wider text-slate-200">AI Assist Compiler</h3>
+          </div>
 
-          <div className="flex flex-col gap-1.5 mt-2">
-            <label className="text-[10px] text-slate-500 font-semibold tracking-widest uppercase">Preferred Playstyle</label>
+          <div className="flex flex-col gap-2">
+            <label className="text-[10px] text-slate-400 font-bold tracking-widest uppercase">Preferred Playstyle</label>
             <select
               value={playstyle}
               onChange={(e) => setPlaystyle(e.target.value)}
@@ -185,23 +189,33 @@ export default function NewCharacter() {
             </div>
           )}
 
-          <button
-            type="button"
-            onClick={handleAiAssist}
-            disabled={isGenerating}
-            className="w-full py-2 px-4 mt-2 bg-transparent hover:bg-constellation-cyan/15 border border-constellation-cyan text-constellation-cyan font-bold uppercase text-xs tracking-wider rounded transition-all flex items-center justify-center gap-1.5 shadow-glow-cyan/20"
-          >
-            {isGenerating ? (
-              <>
-                <div className="w-3.5 h-3.5 border-2 border-t-transparent border-constellation-cyan rounded-full animate-spin"></div>
-                Compiling...
-              </>
-            ) : (
-              <>
-                <Sparkles className="w-3.5 h-3.5" /> Generate Dossier
-              </>
-            )}
-          </button>
+          <div className="flex flex-col gap-2 mt-2">
+            <button
+              type="button"
+              onClick={handleAiAssist}
+              disabled={isGenerating}
+              className="w-full py-2 px-4 bg-transparent hover:bg-constellation-cyan/15 border border-constellation-cyan text-constellation-cyan font-bold uppercase text-xs tracking-wider rounded transition-all flex items-center justify-center gap-1.5 shadow-glow-cyan/20"
+            >
+              {isGenerating ? (
+                <>
+                  <div className="w-3.5 h-3.5 border-2 border-t-transparent border-constellation-cyan rounded-full animate-spin"></div>
+                  Compiling...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-3.5 h-3.5" /> Generate Dossier
+                </>
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={handleResetForm}
+              className="w-full py-1.5 px-4 bg-white/5 hover:bg-white/10 text-slate-300 font-bold uppercase text-[10px] tracking-wider rounded transition-all"
+            >
+              Reset / Clear Form
+            </button>
+          </div>
         </div>
 
         {/* Right Side: Character Manual Registry Form */}
