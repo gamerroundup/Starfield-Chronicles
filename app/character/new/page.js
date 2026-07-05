@@ -10,8 +10,8 @@ export default function NewCharacter() {
   
   // Character form state
   const [name, setName] = useState('');
-  const [background, setBackground] = useState('Explorer');
-  const [traits, setTraits] = useState('Alien DNA, Extrovert');
+  const [background, setBackground] = useState('');
+  const [traits, setTraits] = useState('');
   const [visibility, setVisibility] = useState('private');
   const [bioSummary, setBioSummary] = useState('');
   
@@ -206,7 +206,7 @@ export default function NewCharacter() {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. Capt. Barrett"
+                placeholder="Leave blank for AI, or enter name"
                 required
                 className="bg-space-900 border border-white/10 focus:border-constellation-cyan focus:outline-none rounded px-3 py-2 text-sm text-slate-200 uppercase tracking-wide"
               />
@@ -218,7 +218,7 @@ export default function NewCharacter() {
                 type="text"
                 value={background}
                 onChange={(e) => setBackground(e.target.value)}
-                placeholder="e.g. Bounty Hunter, Explorer"
+                placeholder="Leave blank for AI background, or enter custom"
                 required
                 className="bg-space-900 border border-white/10 focus:border-constellation-cyan focus:outline-none rounded px-3 py-2 text-sm text-slate-200"
               />
@@ -231,7 +231,7 @@ export default function NewCharacter() {
               type="text"
               value={traits}
               onChange={(e) => setTraits(e.target.value)}
-              placeholder="e.g. Extrovert, Alien DNA, Spaced"
+              placeholder="Leave blank for AI traits, or enter comma-separated list"
               className="bg-space-900 border border-white/10 focus:border-constellation-cyan focus:outline-none rounded px-3 py-2 text-sm text-slate-200"
             />
           </div>
