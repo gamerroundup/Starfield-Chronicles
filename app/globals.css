@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-space-950 text-slate-100 font-sans antialiased overflow-x-hidden min-h-screen selection:bg-constellation-cyan selection:text-space-950;
+  }
+}
+
+/* Starfield Glow/Pulse Animations */
+@keyframes starPulse {
+  0%, 100% { opacity: 0.2; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+@keyframes marquee {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+/* Custom Utilities */
+.animate-marquee {
+  animation: marquee 25s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(13, 13, 38, 0.5);
+}
+::-webkit-scrollbar-thumb {
+  background: #00f0ff;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #ff8a00;
+}
+
+/* Glassmorphism Classes */
+.glass-panel {
+  background: rgba(13, 13, 38, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-panel-cyan {
+  background: rgba(3, 3, 8, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 240, 255, 0.2);
+}
+
+.glass-panel-orange {
+  background: rgba(3, 3, 8, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 138, 0, 0.2);
+}
+
+/* Animated Star Background */
+.star {
+  position: absolute;
+  border-radius: 50%;
+  background: white;
+  animation: starPulse infinite ease-in-out;
+}
